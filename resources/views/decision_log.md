@@ -7,7 +7,11 @@ For this application, we explicitly chose to use **Separate Tables** (`invoices`
 *   **Performance Optimization:** Utilizing separate tables allows us to maintain compact index paths directly on our foreign keys (`student_id` and `invoice_id`), keeping database search lookups rapid as row volume increases.
 *   **Maintainability:** Keeping models specialized makes code maintenance cleaner and prevents unexpected code bleeding between billing lines and incoming receipts.
 
-### 2. Caching Strategy for Performance Optimization
+### 2. Eager Loading Strategy (N+1 Query Prevention)
+To ensure optimal database performance, the application implements strict **Eloquent Eager Loading** instead of lazy loading.
+*   **Trade-off Defense:** Rather than running separate database queries for every row loop (which causes the N+1 performance bottleneck), the system uses `Invoice::with(['student', 'payments'])`. This bundles related entities into single, highly optimized queries, verified cleanly with zero performance warnings via **Laravel Debugbar**.
+
+### 3. Caching Strategy for Performance Optimization
 To guarantee maximum scalability under peak student enrollment load, a caching system using **Laravel's Cache Facade** is proposed:
 
 *   **Static List Storing:** Elements that rarely change (like course criteria in the `services` table) are cached indefinitely using `Cache::rememberForever()`.
